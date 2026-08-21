@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width,initial-scale=1">
+   <title>Olheiro Virtual - RBC</title>
+   <style>
+      :root {
+         --b: #3989ff;
+         --i: #101216;
+         --m: #626a78;
+         --p: #f1f3f6;
+         --n: #11151c;
+         --l: #caff4a
+      }
+
+      * {
+         box-sizing: border-box
+      }
+
+      html {
+         scroll-behavior: smooth
+      }
+
+      body {
+         margin: 0;
+         font-family: Arial, Helvetica, sans-serif;
+         color: var(--i);
+         overflow: hidden
+      }
+
+      button {
+         font: inherit
+      }
+
+      .top {
+         position: fixed;
+         z-index: 9;
+         inset: 0 0 auto;
+         height: 58px;
+         display: flex;
+         align-items: center;
+         padding: 0 24px;
+         background: #fffffff0;
+         border-bottom: 1px solid #ddd;
+         backdrop-filter: blur(12px)
+      }
+
+      .brand {
+         font-weight: 900
+      }
+
+      .brand b {
+         background: var(--b);
+         color: #fff;
+         padding: 7px;
+         margin-right: 8px
+      }
+
+      .nav {
+         margin: auto;
+         display: flex;
+         gap: 4px
+      }
+
+      .nav button {
+         border: 0;
+         background: none;
+         color: #737986;
+         font-size: 12px;
+         padding: 8px;
+         cursor: pointer
+      }
+
+      .nav button.on {
+         color: #111;
+         font-weight: 900
+      }
+
+      .count {
+         font: 700 12px monospace
+      }
+
+      .bar {
+         position: fixed;
+         z-index: 10;
+         top: 56px;
+         left: 0;
+         height: 3px;
+         background: var(--b);
+         transition: .3s
+      }
+
+      .deck {
+         height: 100vh;
+         overflow-y: auto;
+         scroll-snap-type: y mandatory
+      }
+
+      .slide {
+         min-height: 100vh;
+         scroll-snap-align: start;
+         scroll-snap-stop: always;
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
+         padding: 92px clamp(35px, 6vw, 95px) 80px;
+         overflow: hidden
+      }
+
+      .k {
+         font: 800 13px monospace;
+         letter-spacing: .12em;
+         color: var(--b)
+      }
+
+      h1 {
+         font-size: clamp(86px, 12vw, 170px);
+         line-height: .72;
+         letter-spacing: -.08em;
+         margin: 25px 0 45px
+      }
+
+      h2 {
+         font-size: clamp(42px, 5vw, 72px);
+         line-height: 1;
+         letter-spacing: -.045em;
+         margin: 12px 0 42px;
+         max-width: 1100px
+      }
+
+      .lead {
+         font-size: clamp(21px, 2.2vw, 31px);
+         line-height: 1.4;
+         color: var(--m);
+         max-width: 800px
+      }
+
+      .hero {
+         background: linear-gradient(115deg, #fff 0 68%, #e9f3ff 68%)
+      }
+
+      .hero-foot {
+         display: flex;
+         gap: 28px;
+         margin-top: 55px;
+         font-size: 13px;
+         font-weight: 800
+      }
+
+      .dark {
+         background: var(--n);
+         color: #fff
+      }
+
+      .dark .k {
+         color: var(--l)
+      }
+
+      .split {
+         display: grid;
+         grid-template-columns: 1fr 80px 1fr
+      }
+
+      .split article {
+         padding: 35px;
+         border: 1px solid #383d47
+      }
+
+      .split article.blue {
+         background: var(--b);
+         border-color: var(--b)
+      }
+
+      .split i {
+         display: grid;
+         place-items: center;
+         font-size: 40px;
+         font-style: normal
+      }
+
+      .split h3,
+      .case h3 {
+         font-size: 30px
+      }
+
+      .split p {
+         color: #c2c7d0;
+         font-size: 20px;
+         line-height: 1.5
+      }
+
+      .take {
+         font-size: 23px;
+         text-align: center;
+         margin: 40px auto 0;
+         max-width: 1000px
+      }
+
+      .case {
+         display: grid;
+         grid-template-columns: 1fr 65px 1fr 65px 160px;
+         align-items: center
+      }
+
+      .case article {
+         padding: 35px;
+         background: var(--p);
+         min-height: 280px
+      }
+
+      .case article.blue {
+         background: #dcecff
+      }
+
+      .case article>span,
+      .formula span,
+      .credits span,
+      .demo aside>span {
+         font: 800 12px monospace;
+         color: var(--b)
+      }
+
+      .case li {
+         margin: 13px 0;
+         color: var(--m);
+         font-size: 18px
+      }
+
+      .case>strong {
+         text-align: center;
+         color: var(--b);
+         font-size: 42px
+      }
+
+      .round {
+         aspect-ratio: 1;
+         border-radius: 50%;
+         display: grid;
+         place-items: center;
+         text-align: center;
+         background: var(--i);
+         color: #fff;
+         font-weight: 900
+      }
+
+      .blue-slide {
+         background: var(--b);
+         color: #fff
+      }
+
+      .blue-slide .k {
+         color: #dceaff
+      }
+
+      .cycle {
+         display: grid;
+         grid-template-columns: repeat(4, 1fr);
+         gap: 17px
+      }
+
+      .cycle article {
+         padding: 28px;
+         background: #fff;
+         color: var(--i);
+         min-height: 295px;
+         display: flex;
+         flex-direction: column
+      }
+
+      .cycle article>span {
+         font-size: 40px;
+         font-weight: 900;
+         color: var(--b)
+      }
+
+      .cycle h3 {
+         font-size: 27px;
+         margin: 25px 0 8px
+      }
+
+      .cycle p {
+         color: var(--m);
+         font-size: 18px
+      }
+
+      .cycle code {
+         margin-top: auto;
+         font-size: 12px;
+         font-weight: 800
+      }
+
+      .pipe {
+         display: grid;
+         grid-template-columns: 1fr 70px 1fr 70px 1fr;
+         align-items: center
+      }
+
+      .pipe div {
+         height: 160px;
+         background: var(--p);
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         justify-content: center
+      }
+
+      .pipe div.blue {
+         background: #dcecff
+      }
+
+      .pipe b {
+         font-size: 46px;
+         color: var(--b)
+      }
+
+      .pipe i {
+         text-align: center;
+         color: var(--b);
+         font-size: 38px
+      }
+
+      .formula {
+         display: grid;
+         grid-template-columns: repeat(3, 1fr);
+         gap: 28px;
+         margin-top: 38px
+      }
+
+      .formula article {
+         border-top: 3px solid var(--b);
+         padding-top: 18px
+      }
+
+      .formula h3 {
+         font-size: 23px;
+         margin: 10px 0
+      }
+
+      .formula p {
+         color: var(--m)
+      }
+
+      .data {
+         background: var(--p)
+      }
+
+      .stats {
+         display: grid;
+         grid-template-columns: repeat(3, 1fr);
+         gap: 20px
+      }
+
+      .stats article {
+         background: #fff;
+         border-left: 8px solid var(--b);
+         padding: 30px
+      }
+
+      .stats b {
+         display: block;
+         font-size: 61px;
+         color: var(--b);
+         margin-bottom: 35px
+      }
+
+      .stats span {
+         color: var(--m);
+         font-size: 18px
+      }
+
+      .note {
+         display: flex;
+         gap: 30px;
+         align-items: center;
+         margin-top: 28px
+      }
+
+      .note b {
+         font-size: 22px
+      }
+
+      .note p {
+         max-width: 820px
+      }
+
+      .demo {
+         display: grid;
+         grid-template-columns: 1fr 1.8fr;
+         gap: 50px
+      }
+
+      .demo aside p {
+         font-size: 28px;
+         font-weight: 900;
+         line-height: 1.5
+      }
+
+      .budget {
+         background: var(--i);
+         color: #fff;
+         padding: 22px;
+         font: 800 12px monospace
+      }
+
+      .budget strong {
+         display: block;
+         color: var(--l);
+         font: 900 48px Arial;
+         margin-top: 7px
+      }
+
+      .rank {
+         display: grid;
+         grid-template-columns: 1.4fr .7fr 1fr;
+         align-items: center;
+         border-bottom: 1px solid #c8ccd3;
+         padding: 15px 10px
+      }
+
+      .rank.head {
+         border-top: 1px solid #111;
+         font: 800 12px monospace;
+         color: var(--b)
+      }
+
+      .rank b {
+         display: inline-grid;
+         place-items: center;
+         width: 28px;
+         height: 28px;
+         margin-right: 12px;
+         background: #111;
+         color: #fff
+      }
+
+      .learn {
+         display: grid;
+         grid-template-columns: repeat(3, 1fr);
+         gap: 60px
+      }
+
+      .learn article {
+         border-top: 3px solid var(--l);
+         padding-top: 24px
+      }
+
+      .learn article>span {
+         font: 800 12px monospace;
+         color: var(--l)
+      }
+
+      .learn h3 {
+         font-size: 27px
+      }
+
+      .learn p {
+         color: #c2c7d0;
+         font-size: 18px;
+         line-height: 1.45
+      }
+
+      .checks {
+         display: grid;
+         grid-template-columns: 1fr 1fr;
+         gap: 13px
+      }
+
+      .checks article {
+         display: grid;
+         grid-template-columns: 48px 1fr auto;
+         align-items: center;
+         background: var(--p);
+         padding: 19px 22px
+      }
+
+      .checks article>span {
+         width: 34px;
+         height: 34px;
+         border-radius: 50%;
+         display: grid;
+         place-items: center;
+         background: var(--b);
+         color: #fff;
+         font-weight: 900
+      }
+
+      .checks h3 {
+         font-size: 18px;
+         margin: 0 0 4px
+      }
+
+      .checks p {
+         margin: 0;
+         color: var(--m)
+      }
+
+      .checks b {
+         font: 800 11px monospace;
+         color: var(--b)
+      }
+
+      .final {
+         background: linear-gradient(135deg, #fff 0 65%, #e9f3ff 65%)
+      }
+
+      .final h2 {
+         font-size: clamp(58px, 7vw, 100px)
+      }
+
+      .credits {
+         display: grid;
+         grid-template-columns: 1fr 1fr;
+         gap: 65px;
+         max-width: 1050px
+      }
+
+      .credits h3 {
+         font-size: 21px;
+         margin: 8px 0 22px
+      }
+
+      .credits ul {
+         columns: 2;
+         list-style: none;
+         padding: 0
+      }
+
+      .credits li {
+         break-inside: avoid;
+         margin: 0 0 12px;
+         font-weight: 800
+      }
+
+      .controls {
+         position: fixed;
+         z-index: 8;
+         bottom: 18px;
+         left: 50%;
+         transform: translateX(-50%);
+         display: flex;
+         gap: 12px;
+         align-items: center;
+         padding: 8px 12px;
+         background: #fffffff0;
+         border: 1px solid #ddd;
+         box-shadow: 0 8px 25px #0002
+      }
+
+      .controls button {
+         border: 0;
+         background: none;
+         font-size: 20px;
+         cursor: pointer
+      }
+
+      .dots {
+         display: flex;
+         gap: 7px
+      }
+
+      .dots button {
+         width: 7px;
+         height: 7px;
+         padding: 0;
+         border-radius: 50%;
+         background: #c4c8cf
+      }
+
+      .dots button.on {
+         background: var(--b);
+         transform: scale(1.4)
+      }
+
+      @media(max-width:850px) {
+         .nav {
+            display: none
+         }
+
+         .slide {
+            padding: 80px 22px;
+            overflow-y: auto;
+            justify-content: flex-start
+         }
+
+         h2 {
+            font-size: 40px
+         }
+
+         .hero {
+            background: #fff
+         }
+
+         .hero-foot {
+            flex-direction: column;
+            gap: 8px
+         }
+
+         .split,
+         .case,
+         .cycle,
+         .pipe,
+         .formula,
+         .stats,
+         .demo,
+         .learn,
+         .checks,
+         .credits {
+            grid-template-columns: 1fr
+         }
+
+         .split i,
+         .case>strong,
+         .pipe i {
+            height: 45px;
+            transform: rotate(90deg)
+         }
+
+         .round {
+            aspect-ratio: auto;
+            border-radius: 0;
+            padding: 20px
+         }
+
+         .cycle article {
+            min-height: auto
+         }
+
+         .credits ul {
+            columns: 1
+         }
+
+         .rank {
+            font-size: 13px;
+            grid-template-columns: 1.3fr .7fr .8fr
+         }
+      }
+
+      @media(prefers-reduced-motion:reduce) {
+         * {
+            scroll-behavior: auto !important
+         }
+      }
+   </style>
+   <style>
+      .hero-main {
+         display: grid;
+         grid-template-columns: minmax(0, 1.5fr) minmax(280px, .72fr);
+         gap: 7vw;
+         align-items: end
+      }
+
+      .hero-team {
+         padding: 28px;
+         border-top: 4px solid var(--b);
+         background: #ffffffc7
+      }
+
+      .hero-team>span {
+         font: 800 12px monospace;
+         letter-spacing: .12em;
+         color: var(--b)
+      }
+
+      .hero-team ul {
+         list-style: none;
+         padding: 0;
+         margin: 18px 0 0
+      }
+
+      .hero-team li {
+         font-size: 15px;
+         font-weight: 800;
+         padding: 8px 0;
+         border-bottom: 1px solid #dfe4eb
+      }
+
+      .hero .hero-foot {
+         margin-top: 38px
+      }
+
+      @media(max-width:850px) {
+         .hero-main {
+            grid-template-columns: 1fr
+         }
+
+         .hero-team {
+            margin-top: 8px
+         }
+      }
+   </style>
+</head>
+
+<body>
+   <header class="top">
+      <div class="brand"><b>RBC</b>Olheiro Virtual</div>
+      <nav class="nav"></nav>
+      <div class="count">01 / 09</div>
+   </header>
+   <div class="bar"></div>
+   <main class="deck">
+      <section class="slide hero" data-label="Início">
+         <div class="k">DISCIPLINA: INTELIGÊNCIA ARTIFICIAL</div>
+         <div class="hero-main">
+            <div>
+               <h1>Olheiro<br>Virtual</h1>
+               <p class="lead">Raciocínio Baseado em Casos para recomendações que respeitam o orçamento, explicam as
+                  concessões e aprendem com o especialista.</p>
+            </div>
+            <aside class="hero-team"><span>INTEGRANTES</span>
+               <ul>
+                  <li>Alexandre Luft Duarte</li>
+                  <li>Alexandre Gustavo Weiss</li>
+                  <li>Ivan Lopes Nerilo</li>
+                  <li>Douglas Gabriel Sierota</li>
+                  <li>José Augusto Henn</li>
+                  <li>Josué Henrique Moreira Borges</li>
+               </ul>
+            </aside>
+         </div>
+         <div class="hero-foot"><span>FIFA 15–22</span><span>Python + KNN</span><span>Professor: Vinícius Almeida dos
+               Santos</span></div>
+      </section>
+      <section class="slide dark" data-label="Problema">
+         <div class="k">01 — CONTEXTO</div>
+         <h2>O craque ideal não cabe no caixa.</h2>
+         <div class="split">
+            <article><span class="k">PROBLEMA NOVO</span>
+               <h3>Um perfil técnico desejado</h3>
+               <p>O clube define velocidade, chute, passe, drible, defesa e físico — além de um teto financeiro.</p>
+            </article><i>→</i>
+            <article class="blue"><span class="k">SOLUÇÃO RBC</span>
+               <h3>Alternativas possíveis</h3>
+               <p>O sistema encontra os jogadores mais parecidos entre aqueles que o clube pode contratar.</p>
+            </article>
+         </div>
+      </section>
+      <section class="slide" data-label="Caso">
+         <div class="k">02 — REPRESENTAÇÃO</div>
+         <h2>Cada jogador é um caso legível.</h2>
+         <div class="case">
+            <article><span>PROBLEMA</span>
+               <h3>Perfil + orçamento</h3>
+               <ul>
+                  <li>6 atributos técnicos</li>
+                  <li>teto de investimento</li>
+                  <li>contexto da consulta</li>
+               </ul>
+            </article><strong>+</strong>
+            <article class="blue"><span>SOLUÇÃO</span>
+               <h3>Jogadores recuperados</h3>
+               <ul>
+                  <li>valor e similaridade</li>
+                  <li>ficha e deltas</li>
+                  <li>avaliação humana</li>
+               </ul>
+            </article><strong>=</strong>
+            <div class="round">CASO<br>RBC</div>
+         </div>
+      </section>
+      <section class="slide blue-slide" data-label="4 Rs">
+         <div class="k">03 — CICLO</div>
+         <h2>Os quatro Rs aparecem no fluxo e no código.</h2>
+         <div class="cycle">
+            <article><span>01</span>
+               <h3>Recuperar</h3>
+               <p>Orçamento → KNN → ranking</p><code>r1_recuperacao.py</code>
+            </article>
+            <article><span>02</span>
+               <h3>Reutilizar</h3>
+               <p>Deltas técnicos e economia</p><code>r2_reutilizacao.py</code>
+            </article>
+            <article><span>03</span>
+               <h3>Revisar</h3>
+               <p>Olheiro aprova ou rejeita</p><code>r3_revisao.py</code>
+            </article>
+            <article><span>04</span>
+               <h3>Reter</h3>
+               <p>JSON persiste sucesso e falha</p><code>r4_retencao.py</code>
+            </article>
+         </div>
+      </section>
+      <section class="slide" data-label="Similaridade">
+         <div class="k">04 — RECUPERAÇÃO</div>
+         <h2>Primeiro viabilidade. Depois, proximidade.</h2>
+         <div class="pipe">
+            <div><b>17.041</b><span>casos válidos</span></div><i>→</i>
+            <div class="blue"><b>€</b><span>filtro de orçamento</span></div><i>→</i>
+            <div><b>KNN</b><span>vizinhos viáveis</span></div>
+         </div>
+         <div class="formula">
+            <article><span>NORMALIZAÇÃO</span>
+               <h3>MinMaxScaler → [0, 1]</h3>
+               <p>Equilibra a escala dos atributos.</p>
+            </article>
+            <article><span>DISTÂNCIA</span>
+               <h3>Euclidiana</h3>
+               <p>Compara seis dimensões técnicas.</p>
+            </article>
+            <article><span>CONVERSÃO</span>
+               <h3>sim = 1 / (1 + d)</h3>
+               <p>Distância zero equivale a 100%.</p>
+            </article>
+         </div>
+      </section>
+      <section class="slide data" data-label="Dados">
+         <div class="k">05 — BASE DE CASOS</div>
+         <h2>Oito temporadas. Um critério coerente.</h2>
+         <div class="stats">
+            <article><b>8</b><span>temporadas<br>FIFA 15 a 22</span></article>
+            <article><b>19.239</b><span>registros brutos<br>em 2022</span></article>
+            <article><b>17.041</b><span>jogadores de linha<br>após limpeza</span></article>
+         </div>
+         <div class="note"><b>2.198 removidos</b>
+            <p>Goleiros e registros incompletos não possuem os seis macroatributos comparáveis. É uma decisão de
+               modelagem.</p>
+         </div>
+      </section>
+      <section class="slide" data-label="Demonstração">
+         <div class="k">06 — DEMONSTRAÇÃO</div>
+         <h2>Com € 2 mi, a restrição fica visível.</h2>
+         <div class="demo">
+            <aside><span>PERFIL-ALVO</span>
+               <p>95 vel • 90 chu • 85 pas<br>93 dri • 35 def • 75 fis</p>
+               <div class="budget">ORÇAMENTO<strong>€ 2 mi</strong></div>
+            </aside>
+            <div>
+               <div class="rank head"><span>Candidato</span><span>Valor</span><span>Similaridade</span></div>
+               <div class="rank"><span><b>1</b>D. Quintero</span><span>€ 1,9 mi</span><span>67,8%</span></div>
+               <div class="rank"><span><b>2</b>G. Hauche</span><span>€ 2,0 mi</span><span>67,1%</span></div>
+               <div class="rank"><span><b>3</b>R. Krishna</span><span>€ 1,5 mi</span><span>66,6%</span></div>
+               <div class="rank"><span><b>4</b>I. Scocco</span><span>€ 1,9 mi</span><span>66,6%</span></div>
+               <div class="rank"><span><b>5</b>Carlitos</span><span>€ 2,0 mi</span><span>66,5%</span></div>
+            </div>
+         </div>
+      </section>
+      <section class="slide dark" data-label="Aprendizado">
+         <div class="k">07 — HUMANO NO CICLO</div>
+         <h2>Feedback vira memória — e memória muda o ranking.</h2>
+         <div class="learn">
+            <article><span>REVISÃO</span>
+               <h3>O olheiro julga</h3>
+               <p>Escolhe um candidato ou rejeita a lista, registrando nota e justificativa.</p>
+            </article>
+            <article><span>RETENÇÃO</span>
+               <h3>O caso é persistido</h3>
+               <p>Sucesso e falha são armazenados em JSON entre execuções.</p>
+            </article>
+            <article><span>NOVA BUSCA</span>
+               <h3>O ranking aprende</h3>
+               <p>Aprovações reforçam; rejeições penalizam casos semelhantes.</p>
+            </article>
+         </div>
+         <p class="take">Aprendizado incremental, imediato e explicável.</p>
+      </section>
+      <section class="slide final" data-label="Equipe">
+         <div class="k">TRABALHO ACADÊMICO</div>
+         <h2>O sistema recomenda,<br>explica e aprende.</h2>
+         <div class="credits">
+            <div><span>DISCIPLINA</span>
+               <h3>Inteligência Artificial</h3><span>PROFESSOR</span>
+               <h3>Vinícius Almeida dos Santos</h3>
+            </div>
+            <div><span>INTEGRANTES</span>
+               <ul>
+                  <li>Alexandre Luft Duarte</li>
+                  <li>Alexandre Gustavo Weiss</li>
+                  <li>Ivan Lopes Nerilo</li>
+                  <li>Douglas Gabriel Sierota</li>
+                  <li>José Augusto Henn</li>
+                  <li>Josué Henrique Moreira Borges</li>
+               </ul>
+            </div>
+         </div>
+      </section>
+   </main>
+   <div class="controls"><button class="prev" aria-label="Anterior">←</button>
+      <div class="dots"></div><button class="next" aria-label="Próximo">→</button>
+   </div>
+   <script>
+      const deck = document.querySelector('.deck'), slides = [...document.querySelectorAll('.slide')], nav = document.querySelector('.nav'), dots = document.querySelector('.dots'), count = document.querySelector('.count'), bar = document.querySelector('.bar'); let active = 0;
+      slides.forEach((s, i) => {const n = document.createElement('button'); n.textContent = s.dataset.label; n.onclick = () => go(i); nav.appendChild(n); const d = document.createElement('button'); d.ariaLabel = 'Ir para ' + s.dataset.label; d.onclick = () => go(i); dots.appendChild(d)});
+      function go(i) {i = Math.max(0, Math.min(slides.length - 1, i)); slides[i].scrollIntoView({behavior: 'smooth'})} function update(i) {active = i;[...nav.children].forEach((x, j) => x.classList.toggle('on', j === i));[...dots.children].forEach((x, j) => x.classList.toggle('on', j === i)); count.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0'); bar.style.width = (i + 1) / slides.length * 100 + '%'; document.querySelector('.prev').disabled = i === 0; document.querySelector('.next').disabled = i === slides.length - 1}
+      new IntersectionObserver(es => es.forEach(e => {if (e.isIntersecting) update(slides.indexOf(e.target))}), {root: deck, threshold: .62}).observe(slides[0]); const observer = new IntersectionObserver(es => es.forEach(e => {if (e.isIntersecting) update(slides.indexOf(e.target))}), {root: deck, threshold: .62}); slides.forEach(s => observer.observe(s)); document.querySelector('.prev').onclick = () => go(active - 1); document.querySelector('.next').onclick = () => go(active + 1); addEventListener('keydown', e => {if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) {e.preventDefault(); go(active + 1)} if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) {e.preventDefault(); go(active - 1)} if (e.key === 'Home') go(0); if (e.key === 'End') go(slides.length - 1)}); update(0);
+   </script>
+</body>
+
+</html>
