@@ -72,7 +72,9 @@ def executar_ciclo(base, espaco, memoria):
     problema = entrada.montar_problema(base)
 
     # ================= 1o R - RECUPERACAO =================================
-    recuperados = recuperar(base, espaco, problema, k=config.K_VIZINHOS)
+    recuperados = recuperar(
+        base, espaco, problema, memoria=memoria, k=config.K_VIZINHOS
+    )
     if recuperados is None:
         return entrada.confirmar("\nTentar outro orcamento?")
 

@@ -64,10 +64,10 @@ pública.
 
 | Etapa | Arquivo | O que faz |
 |---|---|---|
-| **1. Recuperação** | `rbc/ciclo/r1_recuperacao.py` | (A) filtra a base pelo orçamento; (B) `NearestNeighbors(metric='euclidean')` sobre atributos normalizados |
+| **1. Recuperação** | `rbc/ciclo/r1_recuperacao.py` | (A) filtra a base pelo orçamento; (B) aplica KNN sobre atributos normalizados; (C) reordena com aprovações e rejeições semelhantes da memória |
 | **2. Reutilização** | `rbc/ciclo/r2_reutilizacao.py` | exibe os candidatos com *delta* por atributo e economia gerada (adaptação) |
 | **3. Revisão** | `rbc/ciclo/r3_revisao.py` | `input()` no terminal: o especialista aprova, rejeita, dá nota e justifica |
-| **4. Retenção** | `rbc/ciclo/r4_retencao.py` | grava o par (problema, solução) em memória e em JSON — aprendizagem incremental |
+| **4. Retenção** | `rbc/ciclo/r4_retencao.py` | grava o par (problema, solução) em memória e em JSON; a Recuperação seguinte usa esse feedback |
 
 ---
 

@@ -32,7 +32,7 @@ from ..similaridade import para_similaridade
 from ..interface import saida
 
 
-def recuperar(base, espaco, problema, k=config.K_VIZINHOS):
+def recuperar(base, espaco, problema, k=config.K_VIZINHOS, memoria=None):
     """
     Executa a etapa de Recuperacao.
 
@@ -59,9 +59,20 @@ def recuperar(base, espaco, problema, k=config.K_VIZINHOS):
     # ==========================================================================
     # (B) SIMILARIDADE VIA KNN (Distancia Euclidiana)
     # ==========================================================================
-    distancias, posicoes = espaco.vizinhos_mais_proximos(problema, mascara, k)
+    # Recuperamos um conjunto maior quando ha memoria. O ranking tecnico e
+    # entao ajustado pelo que o especialista aprovou ou rejeitou no passado.
+    tamanho_pool = k
+    ajustes_memoria = {}
+    experiencias_usadas = 0
+    if memoria is not None and len(memoria) > 0:
+        tamanho_pool = k * config.FATOR_POOL_MEMORIA
+        ajustes_memoria, experiencias_usadas = memoria.influencias(problema)
 
-    print("\n[B] KNN (metric='{}') buscando os {} vizinhos mais proximos..."
+    distancias, posicoes = espaco.vizinhos_mais_proximos(
+        problema, mascara, tamanho_pool
+    )
+
+    print("\n[B] KNN (metric='{}') analisando {} candidatos..."
           .format(config.METRICA, len(posicoes)))
     print("    Espaco de similaridade: {} dimensoes {}"
           .format(espaco.dimensoes, base.nomes_atributos))
@@ -73,20 +84,41 @@ def recuperar(base, espaco, problema, k=config.K_VIZINHOS):
     recuperados = []
     for distancia, posicao in zip(distancias, posicoes):
         linha = df_viavel.iloc[posicao]
+        similaridade_base = para_similaridade(float(distancia))
+        nome = base.nome_de(linha)
+        ajuste = ajustes_memoria.get(nome, 0.0)
         recuperados.append(
             CasoRecuperado(
-                nome=base.nome_de(linha),
+                nome=nome,
                 valor=float(linha[base.COL_VALOR]),
                 distancia=float(distancia),
-                similaridade=para_similaridade(float(distancia)),
+                similaridade=similaridade_base,
                 atributos={p: int(linha[c]) for p, c in base.atributos.items()},
                 ficha=base.ficha(linha),
+                ajuste_memoria=ajuste,
             )
         )
 
+    recuperados.sort(key=lambda caso: caso.pontuacao_ranking, reverse=True)
+    recuperados = recuperados[:k]
+
+    if memoria is not None:
+        print("\n[C] Memoria RBC: {} caso(s) armazenado(s); "
+              "{} experiencia(s) semelhante(s) aplicada(s)."
+              .format(len(memoria), experiencias_usadas))
+        if experiencias_usadas:
+            print("    Aprovacoes reforcam e rejeicoes penalizam o ranking atual.")
+
     print("\n    Distancias euclidianas encontradas:")
     for posicao, caso in enumerate(recuperados, start=1):
-        print("      {}o vizinho -> d = {:.4f}  |  similaridade = {:5.2f}%"
-              .format(posicao, caso.distancia, caso.similaridade * 100))
+        memoria_txt = ""
+        if caso.ajuste_memoria:
+            memoria_txt = "  |  memoria {:+.2f} p.p.".format(
+                caso.ajuste_memoria * 100
+            )
+        print("      {}o vizinho -> d = {:.4f}  |  similaridade = {:5.2f}%{}"
+              "  |  ranking = {:5.2f}%"
+              .format(posicao, caso.distancia, caso.similaridade * 100,
+                      memoria_txt, caso.pontuacao_ranking * 100))
 
     return recuperados
