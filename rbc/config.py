@@ -29,6 +29,14 @@ K_VIZINHOS = 5          # quantos casos similares a RECUPERACAO deve trazer
 METRICA = "euclidean"   # metrica de distancia usada pelo KNN
 ORCAMENTO_PADRAO = 15_000_000.0
 
+# A recuperacao consulta mais candidatos antes de aplicar o aprendizado da
+# memoria. Assim, uma recomendacao aprovada pode subir no ranking e uma
+# recomendacao rejeitada pode dar lugar a uma alternativa.
+FATOR_POOL_MEMORIA = 5
+LIMIAR_EXPERIENCIA_SEMELHANTE = 0.80
+PESO_SUCESSO_MEMORIA = 0.15
+PESO_FALHA_MEMORIA = 0.15
+
 
 # ==============================================================================
 # MAPEAMENTO DE COLUNAS (portabilidade entre versoes do dataset)

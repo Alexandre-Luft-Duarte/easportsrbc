@@ -56,6 +56,12 @@ class CasoRecuperado:
     similaridade: float
     atributos: dict
     ficha: dict = field(default_factory=dict)
+    ajuste_memoria: float = 0.0
+
+    @property
+    def pontuacao_ranking(self) -> float:
+        """Similaridade tecnica ajustada pelo aprendizado acumulado."""
+        return max(0.0, min(1.0, self.similaridade + self.ajuste_memoria))
 
     def economia(self, orcamento: float) -> float:
         """Quanto sobra no caixa se o clube contratar este jogador."""

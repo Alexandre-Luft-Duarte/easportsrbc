@@ -28,6 +28,7 @@
 """
 
 import json
+import math
 
 from .. import config
 from ..modelos import CasoAprendido
@@ -97,6 +98,65 @@ class MemoriaDeCasos:
         sucessos = sum(1 for c in self.casos if c.get("tipo") == "caso_de_sucesso")
         falhas = sum(1 for c in self.casos if c.get("tipo") == "caso_de_falha")
         return sucessos, falhas
+
+    # ---------------------------------------------------- uso na recuperacao ---
+    @staticmethod
+    def _similaridade_problemas(perfil_atual, perfil_passado):
+        """Compara dois perfis tecnicos na escala normalizada de 0 a 1."""
+        atributos = sorted(set(perfil_atual) & set(perfil_passado))
+        if not atributos:
+            return 0.0
+        distancia = math.sqrt(sum(
+            ((float(perfil_atual[a]) - float(perfil_passado[a])) / 100.0) ** 2
+            for a in atributos
+        ))
+        return 1.0 / (1.0 + distancia)
+
+    def influencias(self, problema):
+        """
+        Calcula o reforco ou a penalizacao aprendida para cada jogador.
+
+        Casos aprovados reforcam apenas a solucao escolhida pelo especialista.
+        Casos rejeitados penalizam a lista que falhou, evitando repeti-la em
+        problemas suficientemente semelhantes. Experiencias distantes nao
+        interferem na consulta atual.
+        """
+        ajustes = {}
+        experiencias_usadas = 0
+
+        for caso in self.casos:
+            perfil_passado = caso.get("problema", {}).get("perfil_desejado", {})
+            relevancia = self._similaridade_problemas(
+                problema.perfil_desejado, perfil_passado
+            )
+            if relevancia < config.LIMIAR_EXPERIENCIA_SEMELHANTE:
+                continue
+
+            avaliacao = caso.get("avaliacao_especialista", {})
+            if caso.get("tipo") == "caso_de_sucesso":
+                escolhido = avaliacao.get("escolhido")
+                if not escolhido:
+                    continue
+                nota = avaliacao.get("nota")
+                confianca = float(nota) / 10.0 if nota is not None else 0.5
+                ajustes[escolhido] = ajustes.get(escolhido, 0.0) + (
+                    config.PESO_SUCESSO_MEMORIA * relevancia * confianca
+                )
+                experiencias_usadas += 1
+            elif caso.get("tipo") == "caso_de_falha":
+                nomes = {
+                    solucao.get("nome")
+                    for solucao in caso.get("solucao_sugerida", [])
+                    if solucao.get("nome")
+                }
+                for nome in nomes:
+                    ajustes[nome] = ajustes.get(nome, 0.0) - (
+                        config.PESO_FALHA_MEMORIA * relevancia
+                    )
+                if nomes:
+                    experiencias_usadas += 1
+
+        return ajustes, experiencias_usadas
 
 
 def reter(memoria, problema, recuperados, avaliacao):
