@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block titulo %}Base de casos — Olheiro Virtual{% endblock %}
+
+{% block conteudo %}
+<div class="painel">
+  <h1>Base de casos aprendidos</h1>
+  <p class="legenda">
+    Isto é o que diferencia o RBC de um modelo estatístico: o conhecimento fica
+    <strong>explícito e legível por um humano</strong>. Nenhum peso, nenhuma
+    caixa-preta — cada decisão do especialista está aqui, auditável.
+  </p>
+  <div class="fatos">
+    <div><b>{{ memoria|length }}</b>casos retidos</div>
+    <div><b class="pos">{{ sucessos }}</b>de sucesso</div>
+    <div><b class="neg">{{ falhas }}</b>de falha</div>
+  </div>
+  <p class="legenda" style="margin-top:16px">
+    Persistido em <code>{{ arquivo }}</code>
+  </p>
+</div>
+
+{% if not casos %}
+  <div class="painel">
+    <p class="legenda" style="margin:0">
+      Nenhum caso ainda. Execute uma busca e avalie a sugestão — o sistema
+      aprende a partir do primeiro caso, sem treinamento.
+    </p>
+  </div>
+{% endif %}
+
+{% for caso in casos %}
+<div class="painel">
+  <div style="display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:baseline">
+    <strong>Caso {{ caso.id }}</strong>
+    <span>
+      {% if caso.tipo == 'caso_de_sucesso' %}
+        <span class="selo ok">sucesso</span>
+      {% else %}
+        <span class="selo err">falha</span>
+      {% endif %}
+      <span class="selo">{{ caso.data_hora }}</span>
+    </span>
+  </div>
+
+  <h2 style="margin:16px 0 8px">Problema</h2>
+  <div class="rolar">
+    <table>
+      <tr>
+        {% for papel in caso.problema.perfil_desejado %}
+          <th class="n">{{ papel|capitalize }}</th>
+        {% endfor %}
+        <th class="n">Orçamento</th>
+      </tr>
+      <tr>
+        {% for papel, valor in caso.problema.perfil_desejado.items() %}
+          <td class="n">{{ valor }}</td>
+        {% endfor %}
+        <td class="n">
+          {{ (caso.problema.orcamento if caso.problema.orcamento is defined
+              else caso.problema.orcamento_eur)|eur }}
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <h2 style="margin:20px 0 8px">Solução sugerida</h2>
+  <div class="rolar">
+    <table>
+      <tr><th>#</th><th>Jogador</th><th class="n">Valor</th>
+          <th class="n">Similaridade</th><th class="n">Distância</th></tr>
+      {% for s in caso.solucao_sugerida %}
+      <tr {% if s.nome == caso.avaliacao_especialista.escolhido %}
+            style="background:var(--destaque)"{% endif %}>
+        <td>{{ loop.index }}</td>
+        <td>{{ s.nome }}
+          {% if s.nome == caso.avaliacao_especialista.escolhido %}
+            <span class="selo ok">aprovado</span>
+          {% endif %}
+        </td>
+        <td class="n">{{ s.valor_eur|eur }}</td>
+        <td class="n">{{ '%.2f'|format(s.similaridade * 100) }}%</td>
+        <td class="n">{{ '%.4f'|format(s.distancia) }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <h2 style="margin:20px 0 8px">Avaliação do especialista</h2>
+  {% set av = caso.avaliacao_especialista %}
+  <p class="legenda" style="margin:0">
+    {% if av.aprovado %}
+      Aprovou <strong>{{ av.escolhido }}</strong> com nota
+      <strong>{{ av.nota }}/10</strong>.
+    {% else %}
+      Rejeitou a sugestão inteira.
+    {% endif %}
+    {% if av.obs %} Justificativa: “{{ av.obs }}”{% endif %}
+  </p>
+</div>
+{% endfor %}
+
+{% if casos %}
+<form method="post" action="{{ url_for('limpar_memoria') }}"
+      onsubmit="return confirm('Apagar os {{ memoria|length }} casos aprendidos? Não há como desfazer.')">
+  <button type="submit" class="perigo">Zerar a base de casos</button>
+</form>
+{% endif %}
+{% endblock %}

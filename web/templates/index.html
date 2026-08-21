@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block titulo %}Novo problema — Olheiro Virtual{% endblock %}
+
+{% block conteudo %}
+<div class="trilha">
+  <span class="on">Problema</span>
+  <span>1. Recuperação</span>
+  <span>2. Reutilização</span>
+  <span>3. Revisão</span>
+  <span>4. Retenção</span>
+</div>
+
+<form method="post" action="{{ url_for('buscar') }}">
+  <div class="painel">
+    <h1>Descreva o jogador ideal</h1>
+    <p class="legenda">
+      Aquele que o clube <em>queria</em> contratar — e não pode pagar. O sistema
+      procura, entre {{ base|length|num }} jogadores, quem mais se parece com esse
+      perfil e cabe no orçamento.
+    </p>
+
+    <div class="grade">
+      {% for atributo in atributos %}
+      <div>
+        <label for="{{ atributo }}">{{ atributo|capitalize }}</label>
+        <div class="desliza">
+          <input type="range" id="{{ atributo }}" name="{{ atributo }}"
+                 min="0" max="100" value="{{ perfil_padrao.get(atributo, 70) }}"
+                 oninput="this.nextElementSibling.value=this.value">
+          <output>{{ perfil_padrao.get(atributo, 70) }}</output>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="painel">
+    <h2>A restrição</h2>
+    <label for="orcamento">Orçamento máximo do clube (€)</label>
+    <!-- step="any": sem isso o HTML5 valida contra (min + n*step) e recusa
+         qualquer valor que nao caia exatamente na grade do passo. -->
+    <input type="number" id="orcamento" name="orcamento" min="1" step="any"
+           value="{{ orcamento_padrao|int }}" required
+           oninput="document.getElementById('orcamento-lido').textContent =
+                    this.value ? '€ ' + Number(this.value).toLocaleString('pt-BR') : ''">
+    <p class="legenda" style="margin:9px 0 0">
+      <strong id="orcamento-lido">€ {{ '{:,}'.format(orcamento_padrao|int).replace(',', '.') }}</strong>
+      &nbsp;·&nbsp; atalhos:
+      <button type="button" class="atalho" onclick="defOrcamento(1000000)">1 mi</button>
+      <button type="button" class="atalho" onclick="defOrcamento(5000000)">5 mi</button>
+      <button type="button" class="atalho" onclick="defOrcamento(15000000)">15 mi</button>
+      <button type="button" class="atalho" onclick="defOrcamento(50000000)">50 mi</button>
+    </p>
+    <p class="legenda" style="margin:9px 0 0">
+      Restrição dura: jogadores acima desse valor são eliminados <strong>antes</strong>
+      do cálculo de similaridade, para que os resultados sejam todos viáveis.
+    </p>
+  </div>
+
+  <button type="submit">Executar o ciclo RBC</button>
+</form>
+
+<script>
+  function defOrcamento(valor){
+    var campo = document.getElementById('orcamento');
+    campo.value = valor;
+    campo.dispatchEvent(new Event('input'));
+  }
+</script>
+
+<div class="painel" style="margin-top:18px">
+  <h2>Base de casos carregada</h2>
+  <div class="fatos">
+    <div><b>{{ base|length|num }}</b>jogadores válidos</div>
+    <div><b>{{ base.removidos|num }}</b>removidos na limpeza</div>
+    <div><b>{{ base.atributos|length }}</b>dimensões de similaridade</div>
+    <div><b>{{ memoria|length }}</b>casos aprendidos</div>
+  </div>
+  <details>
+    <summary>Por que {{ base.removidos|num }} registros saíram da base?</summary>
+    <p class="legenda" style="margin:11px 0 0">
+      São majoritariamente goleiros: eles não possuem
+      {{ base.nomes_atributos|join(', ') }} no dataset. É decisão de modelagem,
+      não falha — comparar goleiro com atacante nesses eixos não produziria
+      similaridade útil.
+    </p>
+  </details>
+</div>
+{% endblock %}

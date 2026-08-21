@@ -1,3 +1,8 @@
+# Nucleo do RBC (necessario para o main.py e para a interface web)
 pandas
 numpy
 scikit-learn
+
+# Somente para a interface web (web/app.py).
+# O main.py roda no terminal sem esta dependencia.
+flask

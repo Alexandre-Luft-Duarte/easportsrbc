@@ -41,51 +41,64 @@ def ler_opcao(mensagem, minimo, maximo):
         print("   ! Opcao invalida.")
 
 
+def _texto_para_float(texto):
+    """
+    Converte o que o usuario digitou num numero, no padrao pt-BR.
+
+    O ponto e AMBIGUO em portugues: em "2.500.000" e separador de milhar, mas
+    em "2500000.75" e separador decimal. Trocar cego todo ponto por nada (ou
+    por virgula) faz "2500000.75" virar 250000075 - cem vezes maior, e sem
+    aviso nenhum. Como o valor lido aqui e o ORCAMENTO, ou seja, a restricao
+    dura do problema, o erro se propagaria por todo o ciclo. Por isso o caso
+    e desambiguado explicitamente:
+
+        "2.500.000"     dois ou mais pontos      -> milhar    -> 2500000.0
+        "1.234.567,89"  tem ponto E virgula      -> pt-BR     -> 1234567.89
+        "2500000,75"    so virgula               -> decimal   -> 2500000.75
+        "2.500"         um ponto, 3 casas depois -> milhar    -> 2500.0
+        "2500000.75"    um ponto, ate 2 casas    -> decimal   -> 2500000.75
+    """
+    texto = texto.strip().replace(" ", "")
+    for simbolo in ("EUR", "eur", "R$", "€", "$"):
+        texto = texto.replace(simbolo, "")
+
+    tem_virgula = "," in texto
+    pontos = texto.count(".")
+
+    if tem_virgula and pontos:
+        texto = texto.replace(".", "").replace(",", ".")
+    elif tem_virgula:
+        texto = texto.replace(",", ".")
+    elif pontos > 1:
+        texto = texto.replace(".", "")
+    elif pontos == 1 and len(texto.split(".")[1]) == 3:
+        # "2.500": 3 digitos depois do ponto e agrupamento de milhar em pt-BR.
+        texto = texto.replace(".", "")
+
+    return float(texto)
+
+
 def ler_monetario(mensagem, padrao):
-    """Le um valor em euros. Aceita '15000000', '15.000.000' ou Enter."""
+    """Le um valor em euros. Aceita '15000000', '15.000.000', '15000000,50'."""
     while True:
         texto = input("{} (Enter = {}): "
                       .format(mensagem, saida.fmt_num(padrao))).strip()
         if texto == "":
             return padrao
         try:
-            return float(texto.replace(".", "").replace(",", "."))
+            valor = _texto_para_float(texto)
         except ValueError:
             print("   ! Digite um numero.")
+            continue
+        if valor <= 0:
+            print("   ! O orcamento precisa ser maior que zero.")
+            continue
+        return valor
 
 
 def confirmar(mensagem):
     """Pergunta sim/nao. Qualquer coisa que nao comece com 's' e nao."""
     return input("{} (s/n): ".format(mensagem)).strip().lower().startswith("s")
-
-
-# ==============================================================================
-# SELECAO DA BASE DE CASOS
-# ==============================================================================
-
-def escolher_dataset(csvs):
-    """
-    Menu de escolha da temporada.
-
-    Cada CSV e uma base de casos diferente: os mesmos jogadores, mas com
-    atributos e precos daquele ano.
-    """
-    if len(csvs) == 1:
-        return csvs[0]
-
-    print("\nBases de casos disponiveis (uma por temporada do FIFA):")
-    for i, caminho in enumerate(csvs, start=1):
-        print("   {}) {}".format(i, caminho.name))
-
-    padrao = len(csvs)   # a ultima em ordem alfabetica = temporada mais recente
-    while True:
-        texto = input("\nEscolha a temporada [1-{}] (Enter = {}): "
-                      .format(len(csvs), csvs[padrao - 1].name)).strip()
-        if texto == "":
-            return csvs[padrao - 1]
-        if texto.isdigit() and 1 <= int(texto) <= len(csvs):
-            return csvs[int(texto) - 1]
-        print("   ! Opcao invalida.")
 
 
 # ==============================================================================

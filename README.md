@@ -13,11 +13,18 @@ Implementa o **Ciclo dos 4 Rs** do RBC (Aamodt & Plaza, 1994) usando
 
 ```bash
 pip install -r requirements.txt
-python main.py
 ```
 
-O programa pergunta qual temporada usar (`players_15` … `players_22`), coleta o
-perfil desejado e o orçamento, e executa o ciclo completo.
+Há **duas interfaces** para o mesmo sistema — as duas executam exatamente o
+mesmo ciclo RBC, sobre a mesma base de casos e a mesma memória:
+
+```bash
+python main.py        # terminal
+python web/app.py     # navegador -> http://127.0.0.1:5000
+```
+
+A base de casos é fixa: `data/players_22.csv` (temporada 2022 do FIFA). O
+programa coleta o perfil desejado e o orçamento, e executa o ciclo completo.
 
 ---
 
@@ -28,8 +35,8 @@ trab_rbc/
 ├── main.py                      # orquestração do ciclo (ler daqui primeiro)
 ├── requirements.txt
 │
-├── data/                        # BASE DE CASOS: um CSV por temporada
-│   └── players_15.csv … players_22.csv
+├── data/                        # BASE DE CASOS
+│   └── players_22.csv           # temporada 2022 do FIFA
 │
 ├── memoria/                     # o que a Retenção aprendeu, entre execuções
 │   └── base_casos_aprendidos.json
@@ -50,8 +57,14 @@ trab_rbc/
 │       ├── entrada.py
 │       └── saida.py
 │
-└── legado/
-    └── olheiro_virtual_v1.py    # versão monolítica, para comparação
+└── web/                         # a MESMA aplicação, no navegador
+    ├── app.py                   # rotas Flask (não altera nada em rbc/)
+    └── templates/
+        ├── base.html            # layout + CSS
+        ├── index.html           # descrição do problema
+        ├── resultado.html       # 1º R + 2º R + formulário do 3º R
+        ├── retido.html          # 4º R
+        └── memoria.html         # base de casos aprendidos, auditável
 ```
 
 A ideia da organização: **o ciclo do RBC é visível na própria árvore de pastas**,
@@ -68,6 +81,38 @@ pública.
 | **2. Reutilização** | `rbc/ciclo/r2_reutilizacao.py` | exibe os candidatos com *delta* por atributo e economia gerada (adaptação) |
 | **3. Revisão** | `rbc/ciclo/r3_revisao.py` | `input()` no terminal: o especialista aprova, rejeita, dá nota e justifica |
 | **4. Retenção** | `rbc/ciclo/r4_retencao.py` | grava o par (problema, solução) em memória e em JSON; a Recuperação seguinte usa esse feedback |
+
+---
+
+## A interface web (e por que ela prova a arquitetura)
+
+`web/app.py` roda o **mesmo** ciclo do `main.py` no navegador. Para isso existir,
+**nenhuma linha do pacote `rbc/` precisou ser alterada** — o que é a demonstração
+prática da separação que o projeto defende:
+
+| Módulo | Na interface web |
+|---|---|
+| `base_casos.py`, `similaridade.py` | **reutilizados** sem alteração |
+| `ciclo/r1_recuperacao.py` (Retrieve) | **reutilizado** sem alteração |
+| `ciclo/r4_retencao.py` (Retain) | **reutilizado** sem alteração |
+| `ciclo/r2_reutilizacao.py` (Reuse) | reescrito em HTML |
+| `ciclo/r3_revisao.py` (Revise) | reescrito como `<form>` |
+| `interface/` (terminal) | substituído por `templates/` |
+
+O que foi substituído não é raciocínio: o **R2 apenas exibe** a adaptação e o
+**R3 apenas coleta** o veredito humano. Trocar terminal por navegador troca
+exatamente essas duas camadas — o raciocínio (R1 e R4) fica intacto.
+
+As duas interfaces compartilham `memoria/base_casos_aprendidos.json`: um caso
+aprovado no terminal influencia a busca seguinte feita no navegador, e vice-versa.
+
+**Bônus didático:** as funções do `rbc/` narram o próprio raciocínio via
+`print()`. Em vez de descartar isso, a web captura a saída e a exibe em
+"Ver o trace do raciocínio" — o passo a passo do RBC continua visível.
+
+A rota `/memoria` lista a base de casos aprendidos em tabela, com o jogador
+aprovado destacado. É a **auditabilidade** do RBC virando tela: cada decisão
+guardada é legível por um humano, sem caixa-preta nenhuma.
 
 ---
 

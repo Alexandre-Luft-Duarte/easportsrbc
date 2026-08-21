@@ -35,7 +35,7 @@
 """
 
 from rbc import config
-from rbc.base_casos import BaseDeCasos, listar_datasets
+from rbc.base_casos import BaseDeCasos, localizar_dataset
 from rbc.similaridade import EspacoDeSimilaridade
 from rbc.interface import entrada, saida
 
@@ -47,14 +47,11 @@ def preparar():
     """
     PASSO 0 - Preparacao.
 
-    Carrega a base de casos escolhida e constroi o espaco de similaridade.
-    Isso e feito UMA vez: a base nao muda entre consultas, entao nao ha por que
-    reprocessar 17 mil jogadores a cada pergunta.
+    Carrega a base de casos (players_22.csv) e constroi o espaco de
+    similaridade. Isso e feito UMA vez: a base nao muda entre consultas, entao
+    nao ha por que reprocessar 17 mil jogadores a cada pergunta.
     """
-    csvs = listar_datasets()
-    caminho = entrada.escolher_dataset(csvs)
-
-    base = BaseDeCasos.carregar(caminho)
+    base = BaseDeCasos.carregar(localizar_dataset())
     saida.resumo_base(base)
 
     espaco = EspacoDeSimilaridade(base)
@@ -65,8 +62,9 @@ def executar_ciclo(base, espaco, memoria):
     """
     Roda UMA volta completa do ciclo dos 4 Rs.
 
-    Devolve False se o ciclo foi abortado (nenhum caso viavel e o usuario
-    desistiu), True caso contrario.
+    Quem pergunta se o usuario quer continuar e o main(), uma unica vez. Se
+    nenhum caso cabe no orcamento a volta termina mais cedo: nao ha o que
+    reutilizar, revisar nem reter.
     """
     # ---- descricao do problema novo -------------------------------------
     problema = entrada.montar_problema(base)
@@ -76,7 +74,8 @@ def executar_ciclo(base, espaco, memoria):
         base, espaco, problema, memoria=memoria, k=config.K_VIZINHOS
     )
     if recuperados is None:
-        return entrada.confirmar("\nTentar outro orcamento?")
+        # Sem candidatos nao ha ciclo a completar: encerra a volta aqui.
+        return
 
     # ================= 2o R - REUTILIZACAO ================================
     reutilizar(recuperados, problema)
@@ -86,8 +85,6 @@ def executar_ciclo(base, espaco, memoria):
 
     # ================= 4o R - RETENCAO ====================================
     reter(memoria, problema, recuperados, avaliacao)
-
-    return True
 
 
 def main():
@@ -103,8 +100,7 @@ def main():
     # O ciclo do RBC e continuo: cada consulta resolvida enriquece a base de
     # conhecimento, que fica disponivel para a proxima.
     while True:
-        if not executar_ciclo(base, espaco, memoria):
-            break
+        executar_ciclo(base, espaco, memoria)
         if not entrada.confirmar("\nFazer nova busca?"):
             break
 

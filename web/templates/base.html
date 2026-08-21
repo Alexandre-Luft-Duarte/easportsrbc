@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}Olheiro Virtual{% endblock %}</title>
+<style>
+  :root{
+    --fundo:#f6f7f9; --painel:#ffffff; --borda:#dfe3e8; --texto:#1b1f24;
+    --suave:#5c6672; --acento:#1f6feb; --ok:#1a7f37; --erro:#b32d2e;
+    --destaque:#fff8e1; --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --fundo:#0f1216; --painel:#171b21; --borda:#2b313a; --texto:#e6e9ee;
+      --suave:#98a2b0; --acento:#549bff; --ok:#4ac26b; --erro:#ff6b6b;
+      --destaque:#2a2410;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fundo);color:var(--texto);
+       font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  .topo{background:var(--painel);border-bottom:1px solid var(--borda);
+        padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .marca{font-weight:700;font-size:17px;letter-spacing:-.2px}
+  .marca small{display:block;font-weight:400;font-size:11px;color:var(--suave);
+               letter-spacing:.06em;text-transform:uppercase}
+  .topo nav{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .topo a{color:var(--suave);text-decoration:none;font-size:13px;padding:6px 11px;
+          border-radius:7px}
+  .topo a:hover{background:var(--fundo);color:var(--texto)}
+  .env{max-width:940px;margin:26px auto;padding:0 20px}
+  .painel{background:var(--painel);border:1px solid var(--borda);border-radius:11px;
+          padding:22px;margin-bottom:18px}
+  h1{font-size:21px;margin:0 0 4px}
+  h2{font-size:15px;margin:0 0 14px;text-transform:uppercase;letter-spacing:.07em;
+     color:var(--suave)}
+  .legenda{color:var(--suave);font-size:13px;margin:0 0 18px}
+
+  /* trilha dos 4 Rs */
+  .trilha{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+  .trilha span{font-size:11px;padding:5px 11px;border-radius:20px;
+               border:1px solid var(--borda);color:var(--suave);
+               text-transform:uppercase;letter-spacing:.05em}
+  .trilha span.on{background:var(--acento);border-color:var(--acento);color:#fff;
+                  font-weight:600}
+  .trilha span.feito{border-color:var(--ok);color:var(--ok)}
+
+  label{display:block;font-size:13px;margin-bottom:5px;color:var(--suave)}
+  input[type=number],textarea,select{width:100%;padding:9px 11px;border-radius:8px;
+    border:1px solid var(--borda);background:var(--fundo);color:var(--texto);
+    font:inherit}
+  input[type=range]{width:100%;accent-color:var(--acento)}
+  textarea{min-height:70px;resize:vertical;font-family:inherit}
+  button{background:var(--acento);color:#fff;border:0;border-radius:8px;
+         padding:11px 20px;font:600 14px inherit;cursor:pointer}
+  button:hover{filter:brightness(1.08)}
+  button.neutro{background:transparent;color:var(--suave);
+                border:1px solid var(--borda)}
+  button.perigo{background:transparent;color:var(--erro);
+                border:1px solid var(--erro);padding:7px 14px;font-size:13px}
+  button.atalho{background:transparent;color:var(--acento);border:1px solid var(--borda);
+                padding:2px 9px;font:500 12px inherit;border-radius:14px;margin-left:3px}
+  button.atalho:hover{border-color:var(--acento);filter:none}
+
+  .grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}
+  .desliza{display:flex;align-items:center;gap:11px}
+  .desliza output{font:600 14px var(--mono);min-width:30px;text-align:right}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--borda)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--suave);
+     font-weight:600}
+  td.n,th.n{text-align:right;font-family:var(--mono)}
+  .rolar{overflow-x:auto}
+
+  .fatos{display:flex;gap:26px;flex-wrap:wrap;font-size:13px;color:var(--suave)}
+  .fatos b{display:block;font:600 19px var(--mono);color:var(--texto)}
+  .pos{color:var(--ok)} .neg{color:var(--erro)}
+  .selo{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;
+        border:1px solid var(--borda);color:var(--suave)}
+  .selo.ok{border-color:var(--ok);color:var(--ok)}
+  .selo.err{border-color:var(--erro);color:var(--erro)}
+  details{margin-top:14px}
+  summary{cursor:pointer;font-size:13px;color:var(--suave)}
+  pre{background:var(--fundo);border:1px solid var(--borda);border-radius:8px;
+      padding:14px;overflow-x:auto;font:12px/1.5 var(--mono);margin:11px 0 0}
+  .aviso{background:var(--destaque);border:1px solid var(--borda);border-radius:9px;
+         padding:14px;font-size:14px}
+</style>
+</head>
+<body>
+<header class="topo">
+  <div class="marca">Olheiro Virtual<small>Raciocínio Baseado em Casos</small></div>
+  <nav>
+    <a href="{{ url_for('index') }}">Nova busca</a>
+    <a href="{{ url_for('ver_memoria') }}">Base de casos ({{ memoria|length }})</a>
+  </nav>
+</header>
+<main class="env">
+  {% block conteudo %}{% endblock %}
+</main>
+</body>
+</html>

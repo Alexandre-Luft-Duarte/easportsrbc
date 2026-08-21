@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block titulo %}Candidatos — Olheiro Virtual{% endblock %}
+
+{% block conteudo %}
+<div class="trilha">
+  <span class="feito">Problema</span>
+  <span class="feito">1. Recuperação</span>
+  <span class="feito">2. Reutilização</span>
+  <span class="on">3. Revisão</span>
+  <span>4. Retenção</span>
+</div>
+
+{% if not recuperados %}
+  <div class="painel">
+    <h1>Nenhum jogador cabe nesse orçamento</h1>
+    <p class="legenda">
+      Os {{ base|length|num }} casos da base custam mais que
+      {{ problema.orcamento|eur }}. Aumente o teto e tente de novo.
+    </p>
+    <a href="{{ url_for('index') }}"><button type="button">Voltar</button></a>
+  </div>
+{% else %}
+
+<div class="painel">
+  <h2>1º R — Recuperação (Retrieve)</h2>
+  <div class="fatos">
+    <div><b>{{ base|length|num }}</b>casos na base</div>
+    <div><b>{{ viaveis|num }}</b>cabem no orçamento</div>
+    <div><b>{{ (base|length - viaveis)|num }}</b>descartados por preço</div>
+    <div><b>{{ recuperados|length }}</b>vizinhos recuperados</div>
+  </div>
+  <p class="legenda" style="margin:16px 0 0">
+    O filtro de orçamento roda <strong>antes</strong> do KNN. Se rodasse depois, os
+    vizinhos mais próximos seriam craques impagáveis e sobrariam poucos — ou
+    nenhum — candidatos viáveis.
+  </p>
+  <details>
+    <summary>Ver o trace do raciocínio (saída de rbc/ciclo/r1_recuperacao.py)</summary>
+    <pre>{{ trace }}</pre>
+  </details>
+</div>
+
+<div class="painel">
+  <h2>2º R — Reutilização (Reuse)</h2>
+  <p class="legenda">
+    A solução recuperada, já adaptada: o que se ganha e se perde em cada
+    atributo, e quanto sobra em caixa.
+  </p>
+
+  {% for caso in recuperados %}
+  <div style="border:1px solid var(--borda);border-radius:9px;padding:16px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:baseline">
+      <strong style="font-size:16px">#{{ loop.index }} &nbsp; {{ caso.nome }}</strong>
+      <span class="selo">similaridade {{ '%.2f'|format(caso.similaridade * 100) }}%</span>
+    </div>
+
+    <p class="legenda" style="margin:7px 0 12px">
+      {% for papel, valor in caso.ficha.items() %}
+        {{ papel|capitalize }}: {{ valor }}{% if not loop.last %} &nbsp;·&nbsp; {% endif %}
+      {% endfor %}
+    </p>
+
+    <div class="fatos" style="margin-bottom:12px">
+      <div><b>{{ caso.valor|eur }}</b>valor de mercado</div>
+      <div><b class="pos">{{ caso.economia(problema.orcamento)|eur }}</b>sobra no caixa</div>
+      {% if caso.ajuste_memoria %}
+      <div><b class="{{ 'pos' if caso.ajuste_memoria > 0 else 'neg' }}">
+        {{ '%+.1f'|format(caso.ajuste_memoria * 100) }} p.p.</b>ajuste da memória</div>
+      {% endif %}
+    </div>
+
+    <div class="rolar">
+      <table>
+        <tr>
+          <th>Atributo</th>
+          {% for papel in caso.atributos %}<th class="n">{{ papel|capitalize }}</th>{% endfor %}
+        </tr>
+        <tr>
+          <td style="color:var(--suave)">Desejado</td>
+          {% for papel in caso.atributos %}
+            <td class="n">{{ problema.perfil_desejado[papel] }}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td style="color:var(--suave)">Encontrado</td>
+          {% for papel, valor in caso.atributos.items() %}<td class="n">{{ valor }}</td>{% endfor %}
+        </tr>
+        <tr>
+          <td style="color:var(--suave)">Delta</td>
+          {% for papel, valor in caso.atributos.items() %}
+            {% set delta = valor - problema.perfil_desejado[papel] %}
+            <td class="n {{ 'pos' if delta > 0 else ('neg' if delta < 0 else '') }}">
+              {{ '%+d'|format(delta) if delta else '0' }}</td>
+          {% endfor %}
+        </tr>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<form method="post" action="{{ url_for('avaliar') }}">
+  <input type="hidden" name="token" value="{{ token }}">
+  <div class="painel">
+    <h2>3º R — Revisão (Revise)</h2>
+    <p class="legenda">
+      O sistema calcula similaridade técnica. Você traz o que os números não
+      capturam: idade, contrato, salário, adaptação, esquema tático.
+    </p>
+
+    <label for="escolha">Veredito do especialista</label>
+    <select id="escolha" name="escolha" onchange="
+        document.getElementById('bloco-ok').hidden  = (this.value === '0');
+        document.getElementById('bloco-nao').hidden = (this.value !== '0');">
+      {% for caso in recuperados %}
+      <option value="{{ loop.index }}">
+        Aprovar #{{ loop.index }} — {{ caso.nome }} ({{ caso.valor|eur }})
+      </option>
+      {% endfor %}
+      <option value="0">Rejeitar — nenhum serve</option>
+    </select>
+
+    <div id="bloco-ok" style="margin-top:16px">
+      <label for="nota">Nota para a recomendação (0 a 10)</label>
+      <div class="desliza" style="margin-bottom:14px">
+        <input type="range" id="nota" name="nota" min="0" max="10" value="8"
+               oninput="this.nextElementSibling.value=this.value">
+        <output>8</output>
+      </div>
+      <label for="obs">Observações do olheiro (opcional)</label>
+      <textarea id="obs" name="obs" placeholder="Ex.: encaixa no 4-3-3, contrato acaba em junho"></textarea>
+    </div>
+
+    <div id="bloco-nao" hidden style="margin-top:16px">
+      <label for="motivo">Por que a sugestão falhou?</label>
+      <textarea id="motivo" name="motivo" placeholder="Ex.: idade média alta demais para o projeto"></textarea>
+      <p class="legenda" style="margin:9px 0 0">
+        No RBC, falha é conhecimento: o caso é retido como
+        <code>caso_de_falha</code> e penaliza esses nomes em buscas semelhantes.
+      </p>
+    </div>
+  </div>
+
+  <button type="submit">Registrar avaliação e reter o caso</button>
+  <a href="{{ url_for('index') }}"><button type="button" class="neutro">Descartar</button></a>
+</form>
+{% endif %}
+{% endblock %}

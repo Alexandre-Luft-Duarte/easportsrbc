@@ -7,8 +7,8 @@ pesos, o RBC mantem o conhecimento explicito: cada linha do CSV e um caso ja
 resolvido pelo mundo real (um jogador que existe, com atributos tecnicos
 conhecidos e um preco de mercado conhecido).
 
-Este modulo cuida de: localizar o CSV, mapear as colunas, limpar os dados e
-expor a base pronta para as etapas do ciclo.
+Este modulo cuida de: localizar o CSV da temporada 2022, mapear as colunas,
+limpar os dados e expor a base pronta para as etapas do ciclo.
 """
 
 import numpy as np
@@ -18,31 +18,26 @@ from . import config
 
 
 # ==============================================================================
-# LOCALIZACAO DOS ARQUIVOS
+# LOCALIZACAO DO ARQUIVO
 # ==============================================================================
 
-def listar_datasets():
+def localizar_dataset():
     """
-    Lista os CSVs disponiveis em data/.
+    Devolve o caminho da BASE DE CASOS (players_22.csv).
 
-    O dataset vem separado por temporada (players_15.csv ... players_22.csv).
-    Cada arquivo e uma BASE DE CASOS diferente: os mesmos jogadores, mas com
-    atributos e precos daquele ano - o que muda completamente o resultado da
-    recuperacao.
+    O sistema trabalha com uma unica temporada, definida em
+    config.ARQUIVO_DADOS. Cada linha desse CSV e um caso ja resolvido pelo
+    mundo real: um jogador que existe, com atributos tecnicos e preco de
+    mercado conhecidos.
     """
-    if not config.PASTA_DADOS.exists():
+    caminho = config.ARQUIVO_DADOS
+    if not caminho.exists():
         raise FileNotFoundError(
-            "\n\n>>> A pasta de dados nao existe:\n    {}\n"
-            ">>> Crie-a e coloque os CSVs do FIFA dentro.\n".format(config.PASTA_DADOS)
+            "\n\n>>> A base de casos nao foi encontrada:\n    {}\n"
+            ">>> Coloque o arquivo '{}' do FIFA nessa pasta e rode de novo.\n"
+            .format(caminho, caminho.name)
         )
-
-    csvs = sorted(config.PASTA_DADOS.glob("*.csv"))
-    if not csvs:
-        raise FileNotFoundError(
-            "\n\n>>> Nenhum arquivo .csv encontrado em:\n    {}\n"
-            ">>> Coloque o CSV do FIFA nesta pasta e rode de novo.\n".format(config.PASTA_DADOS)
-        )
-    return csvs
+    return caminho
 
 
 # ==============================================================================

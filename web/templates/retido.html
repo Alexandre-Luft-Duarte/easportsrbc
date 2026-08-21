@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block titulo %}Caso retido — Olheiro Virtual{% endblock %}
+
+{% block conteudo %}
+<div class="trilha">
+  <span class="feito">Problema</span>
+  <span class="feito">1. Recuperação</span>
+  <span class="feito">2. Reutilização</span>
+  <span class="feito">3. Revisão</span>
+  <span class="on">4. Retenção</span>
+</div>
+
+<div class="painel">
+  <h2>4º R — Retenção (Retain)</h2>
+
+  {% if avaliacao.aprovado %}
+    <h1>Caso de sucesso retido <span class="selo ok">id {{ caso.id }}</span></h1>
+    <p class="legenda">
+      O par (problema, solução validada) entrou na base de conhecimento. A
+      próxima busca com perfil semelhante já sai influenciada por esta decisão —
+      sem re-treinar nada.
+    </p>
+    <div class="fatos">
+      <div><b>{{ avaliacao.escolhido }}</b>jogador aprovado</div>
+      <div><b>{{ avaliacao.nota }}/10</b>confiança do especialista</div>
+      <div><b>{{ problema.orcamento|eur }}</b>teto do orçamento</div>
+    </div>
+    {% if avaliacao.obs %}
+      <p class="legenda" style="margin-top:14px">Observação: “{{ avaliacao.obs }}”</p>
+    {% endif %}
+  {% else %}
+    <h1>Caso de falha retido <span class="selo err">id {{ caso.id }}</span></h1>
+    <p class="legenda">
+      Aprender com o erro também é RBC. Os candidatos rejeitados passam a ser
+      penalizados em problemas suficientemente semelhantes, abrindo espaço para
+      alternativas que o ranking técnico sozinho não traria.
+    </p>
+    <p class="legenda">
+      Motivo registrado: “{{ avaliacao.obs or '(não informado)' }}”
+    </p>
+  {% endif %}
+
+  <div class="aviso" style="margin-top:18px">
+    Conhecimento acumulado: <strong>{{ memoria|length }}</strong> caso(s) —
+    {{ sucessos }} sucesso(s), {{ falhas }} falha(s).
+  </div>
+
+  <details>
+    <summary>Ver o trace do raciocínio (saída de rbc/ciclo/r4_retencao.py)</summary>
+    <pre>{{ trace }}</pre>
+  </details>
+</div>
+
+<a href="{{ url_for('index') }}"><button type="button">Nova busca</button></a>
+<a href="{{ url_for('ver_memoria') }}">
+  <button type="button" class="neutro">Ver a base de casos</button>
+</a>
+{% endblock %}

@@ -15,8 +15,13 @@ from pathlib import Path
 # RAIZ = a pasta trab_rbc/ (dois niveis acima deste arquivo: rbc/config.py)
 RAIZ = Path(__file__).resolve().parent.parent
 
-PASTA_DADOS = RAIZ / "data"       # onde ficam os CSVs do FIFA (base de casos)
+PASTA_DADOS = RAIZ / "data"       # onde fica o CSV do FIFA (base de casos)
 PASTA_MEMORIA = RAIZ / "memoria"  # onde a RETENCAO grava os casos aprendidos
+
+# A BASE DE CASOS e a temporada 2022 do FIFA - a mais recente do dataset e a
+# unica usada pelo sistema. Fixar o arquivo aqui mantem a execucao direta: o
+# usuario descreve o problema e o ciclo roda, sem escolher temporada antes.
+ARQUIVO_DADOS = PASTA_DADOS / "players_22.csv"
 
 ARQUIVO_MEMORIA = PASTA_MEMORIA / "base_casos_aprendidos.json"
 
@@ -44,8 +49,8 @@ PESO_FALHA_MEMORIA = 0.15
 # Cada versao do dataset do FIFA nomeia as colunas de um jeito ligeiramente
 # diferente (ex.: "value_eur" vs "Value", "short_name" vs "Name"). Em vez de
 # fixar um nome unico, listamos candidatos e procuramos o primeiro que existir.
-# Isso torna o projeto portavel entre players_15.csv ... players_22.csv, FIFA23
-# e as varias versoes publicadas no Kaggle.
+# Mesmo usando apenas players_22.csv, isso mantem o projeto portavel: trocar o
+# CSV por outra versao publicada no Kaggle nao exige mexer na logica.
 # ==============================================================================
 
 COLUNAS_DESCRITIVAS = {

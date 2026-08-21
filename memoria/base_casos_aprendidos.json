@@ -1,166 +1,57 @@
 [
   {
     "id": 1,
-    "data_hora": "20/08/2026 20:01:17",
+    "data_hora": "21/08/2026 20:39:45",
+    "tipo": "caso_de_sucesso",
     "problema": {
       "perfil_desejado": {
-        "velocidade": 90,
-        "chute": 91,
-        "passe": 85,
-        "drible": 75,
-        "defesa": 35,
-        "fisico": 94
-      },
-      "orcamento_eur": 1000000000000.0
-    },
-    "solucao_sugerida": [
-      {
-        "nome": "R. Lukaku",
-        "valor_eur": 93500000.0,
-        "similaridade": 0.7865,
-        "distancia": 0.2714
-      },
-      {
-        "nome": "A. Delort",
-        "valor_eur": 25500000.0,
-        "similaridade": 0.7848,
-        "distancia": 0.2742
-      },
-      {
-        "nome": "M. Arnautović",
-        "valor_eur": 21000000.0,
-        "similaridade": 0.7554,
-        "distancia": 0.3238
-      },
-      {
-        "nome": "K. Volland",
-        "valor_eur": 37000000.0,
-        "similaridade": 0.7547,
-        "distancia": 0.3249
-      },
-      {
-        "nome": "M. Depay",
-        "valor_eur": 63000000.0,
-        "similaridade": 0.7521,
-        "distancia": 0.3297
-      }
-    ],
-    "avaliacao_especialista": {
-      "aprovado": false,
-      "escolhido": null,
-      "nota": null,
-      "obs": "não são jogadores a altura do meu time"
-    },
-    "tipo": "caso_de_falha"
-  },
-  {
-    "id": 2,
-    "data_hora": "20/08/2026 20:03:01",
-    "problema": {
-      "perfil_desejado": {
-        "velocidade": 89,
-        "chute": 91,
-        "passe": 65,
-        "drible": 80,
-        "defesa": 45,
-        "fisico": 88
-      },
-      "orcamento_eur": 500000000.0
-    },
-    "solucao_sugerida": [
-      {
-        "nome": "E. Haaland",
-        "valor_eur": 137500000.0,
-        "similaridade": 1.0,
-        "distancia": 0.0
-      },
-      {
-        "nome": "E. Ávila",
-        "valor_eur": 20500000.0,
-        "similaridade": 0.836,
-        "distancia": 0.1962
-      },
-      {
-        "nome": "R. Lukaku",
-        "valor_eur": 93500000.0,
-        "similaridade": 0.8347,
-        "distancia": 0.198
-      },
-      {
-        "nome": "C. Immobile",
-        "valor_eur": 67500000.0,
-        "similaridade": 0.8261,
-        "distancia": 0.2106
-      },
-      {
-        "nome": "L. Martínez",
-        "valor_eur": 78000000.0,
-        "similaridade": 0.826,
-        "distancia": 0.2107
-      }
-    ],
-    "avaliacao_especialista": {
-      "aprovado": true,
-      "escolhido": "E. Haaland",
-      "indice": 0,
-      "nota": 10,
-      "obs": "muito boa a escolha, foi exatamente na contratação que eu pensei"
-    },
-    "tipo": "caso_de_sucesso"
-  },
-  {
-    "id": 3,
-    "data_hora": "20/08/2026 20:04:17",
-    "problema": {
-      "perfil_desejado": {
-        "velocidade": 97,
+        "velocidade": 95,
         "chute": 88,
         "passe": 80,
         "drible": 92,
         "defesa": 36,
-        "fisico": 77
+        "fisico": 78
       },
-      "orcamento_eur": 1000000000.0
+      "orcamento": 15000000.0
     },
     "solucao_sugerida": [
       {
-        "nome": "K. Mbappé",
-        "valor_eur": 194000000.0,
-        "similaridade": 1.0,
-        "distancia": 0.0
+        "nome": "K. Bellarabi",
+        "valor_eur": 14500000.0,
+        "similaridade": 0.7598,
+        "distancia": 0.3162
       },
       {
-        "nome": "S. Mané",
-        "valor_eur": 101000000.0,
-        "similaridade": 0.8643,
-        "distancia": 0.1569
+        "nome": "M. Suárez",
+        "valor_eur": 11000000.0,
+        "similaridade": 0.7532,
+        "distancia": 0.3277
       },
       {
-        "nome": "M. Salah",
-        "valor_eur": 101000000.0,
-        "similaridade": 0.8605,
-        "distancia": 0.1621
+        "nome": "Ai Kesen",
+        "valor_eur": 15000000.0,
+        "similaridade": 0.7525,
+        "distancia": 0.3289
       },
       {
-        "nome": "Cristiano Ronaldo",
-        "valor_eur": 45000000.0,
-        "similaridade": 0.8474,
-        "distancia": 0.1801
+        "nome": "F. Acheampong",
+        "valor_eur": 11000000.0,
+        "similaridade": 0.7499,
+        "distancia": 0.3335
       },
       {
-        "nome": "M. Rashford",
-        "valor_eur": 77500000.0,
-        "similaridade": 0.8417,
-        "distancia": 0.1881
+        "nome": "K. Baldé",
+        "valor_eur": 10000000.0,
+        "similaridade": 0.7471,
+        "distancia": 0.3386
       }
     ],
     "avaliacao_especialista": {
       "aprovado": true,
-      "escolhido": "K. Mbappé",
-      "indice": 0,
-      "nota": 10,
-      "obs": "exatamente o que eu queria"
-    },
-    "tipo": "caso_de_sucesso"
+      "escolhido": "K. Baldé",
+      "indice": 4,
+      "nota": 8,
+      "obs": "achei top"
+    }
   }
 ]
