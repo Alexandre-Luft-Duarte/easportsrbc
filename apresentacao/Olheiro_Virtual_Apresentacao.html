@@ -680,6 +680,158 @@
          margin-top: 38px
       }
 
+      .source-line {
+         margin-top: 24px;
+         font-size: 14px;
+         color: var(--m)
+      }
+
+      .source-line a {
+         color: var(--b);
+         font-weight: 800
+      }
+
+      .feature-grid {
+         display: grid;
+         grid-template-columns: repeat(3, 1fr);
+         gap: 18px
+      }
+
+      .feature-grid article {
+         padding: 22px 24px;
+         border-top: 4px solid var(--b);
+         background: #fff
+      }
+
+      .feature-grid h3 {
+         margin: 4px 0 9px;
+         font-size: 22px
+      }
+
+      .feature-grid p {
+         margin: 0;
+         color: var(--m);
+         line-height: 1.35
+      }
+
+      .choice-grid {
+         display: grid;
+         grid-template-columns: 1fr 1fr;
+         gap: 38px
+      }
+
+      .choice-grid article {
+         padding: 30px;
+         background: var(--p);
+         border-top: 5px solid var(--b)
+      }
+
+      .choice-grid h3 {
+         margin: 0 0 18px;
+         font-size: 28px
+      }
+
+      .choice-grid li {
+         margin: 11px 0;
+         color: var(--m);
+         font-size: 18px;
+         line-height: 1.3
+      }
+
+      .equations {
+         display: grid;
+         grid-template-columns: 1fr 1fr;
+         gap: 28px
+      }
+
+      .equations article {
+         padding: 26px;
+         background: var(--p);
+         border-left: 6px solid var(--b)
+      }
+
+      .equations span {
+         font: 800 12px monospace;
+         color: var(--b)
+      }
+
+      .eq {
+         margin: 15px 0 10px;
+         font: 800 25px Georgia, serif;
+         color: var(--i)
+      }
+
+      .equations p {
+         margin: 0;
+         color: var(--m);
+         line-height: 1.4
+      }
+
+      .live {
+         display: grid;
+         grid-template-columns: .85fr 1.15fr;
+         gap: 55px;
+         align-items: center
+      }
+
+      .live-steps {
+         counter-reset: step;
+         list-style: none;
+         margin: 0;
+         padding: 0
+      }
+
+      .live-steps li {
+         counter-increment: step;
+         display: grid;
+         grid-template-columns: 52px 1fr;
+         gap: 16px;
+         align-items: center;
+         padding: 16px 0;
+         border-bottom: 1px solid #3a404a;
+         font-size: 20px
+      }
+
+      .live-steps li::before {
+         content: counter(step, decimal-leading-zero);
+         color: var(--l);
+         font-weight: 900
+      }
+
+      .live-callout {
+         padding: 38px;
+         background: var(--b)
+      }
+
+      .live-callout h3 {
+         margin: 0 0 18px;
+         font-size: 38px
+      }
+
+      .live-callout p {
+         font-size: 21px;
+         line-height: 1.45;
+         color: #e8f1ff
+      }
+
+      body.export .top,
+      body.export .bar,
+      body.export .controls {
+         display: none !important
+      }
+
+      body.export .deck {
+         overflow: hidden
+      }
+
+      body.export .slide {
+         width: 100vw;
+         height: 100vh;
+         min-height: 100vh;
+         padding-top: 70px;
+         padding-bottom: 60px
+      }
+
       @media(max-width:850px) {
          .hero-main {
             grid-template-columns: 1fr
@@ -687,6 +839,13 @@
 
          .hero-team {
             margin-top: 8px
+         }
+
+         .feature-grid,
+         .choice-grid,
+         .equations,
+         .live {
+            grid-template-columns: 1fr
          }
       }
    </style>
@@ -705,8 +864,8 @@
          <div class="hero-main">
             <div>
                <h1>Olheiro<br>Virtual</h1>
-               <p class="lead">Raciocínio Baseado em Casos para recomendações que respeitam o orçamento, explicam as
-                  concessões e aprendem com o especialista.</p>
+               <p class="lead">Raciocínio Baseado em Casos para encontrar jogadores tecnicamente semelhantes sem
+                  ultrapassar o orçamento do clube.</p>
             </div>
             <aside class="hero-team"><span>INTEGRANTES</span>
                <ul>
@@ -719,48 +878,119 @@
                </ul>
             </aside>
          </div>
-         <div class="hero-foot"><span>FIFA 15–22</span><span>Python + KNN</span><span>Professor: Vinícius Almeida dos
-               Santos</span></div>
+         <div class="hero-foot"><span>Dataset FIFA 22</span><span>Python + KNN</span><span>Professor: Vinícius Almeida
+               dos Santos</span></div>
       </section>
       <section class="slide dark" data-label="Problema">
          <div class="k">01 — CONTEXTO</div>
-         <h2>O craque ideal não cabe no caixa.</h2>
+         <h2>O jogador ideal não cabe no orçamento.</h2>
          <div class="split">
             <article><span class="k">PROBLEMA NOVO</span>
-               <h3>Um perfil técnico desejado</h3>
-               <p>O clube define velocidade, chute, passe, drible, defesa e físico — além de um teto financeiro.</p>
+               <h3>Perfil técnico + teto financeiro</h3>
+               <p>O clube informa seis atributos desejados e quanto pode investir.</p>
             </article><i>→</i>
             <article class="blue"><span class="k">SOLUÇÃO RBC</span>
-               <h3>Alternativas possíveis</h3>
-               <p>O sistema encontra os jogadores mais parecidos entre aqueles que o clube pode contratar.</p>
+               <h3>Alternativas viáveis e explicáveis</h3>
+               <p>O sistema recupera os jogadores mais próximos somente entre os que cabem no orçamento.</p>
+            </article>
+         </div>
+      </section>
+      <section class="slide data" data-label="Dataset">
+         <div class="k">02 — BASE DE CASOS</div>
+         <h2>Usamos apenas a temporada FIFA 22.</h2>
+         <div class="stats">
+            <article><b>110</b><span>colunas no arquivo<br><code>players_22.csv</code></span></article>
+            <article><b>19.239</b><span>jogadores<br>antes da limpeza</span></article>
+            <article><b>17.041</b><span>jogadores de linha<br>na base final</span></article>
+         </div>
+         <div class="note"><b>2.198 removidos</b>
+            <p>Goleiros, atributos incompletos e valores de mercado ausentes ou nulos não permitem a comparação adotada.
+            </p>
+         </div>
+         <p class="source-line">Obtido no Kaggle: <a
+               href="https://www.kaggle.com/datasets/stefanoleone992/fifa-22-complete-player-dataset">FIFA 22 complete
+               player dataset</a>, de Stefano Leone. Dados coletados do SoFIFA. Acesso em 26/08/2026.</p>
+      </section>
+      <section class="slide" data-label="Colunas">
+         <div class="k">03 — ESTRUTURA DOS DADOS</div>
+         <h2>As 110 colunas descrevem seis grupos de informação.</h2>
+         <div class="feature-grid">
+            <article>
+               <h3>Identificação</h3>
+               <p>ID, nome, URL e nacionalidade.</p>
+            </article>
+            <article>
+               <h3>Perfil físico</h3>
+               <p>Idade, altura, peso e pé preferido.</p>
+            </article>
+            <article>
+               <h3>Clube e contrato</h3>
+               <p>Equipe, posição, salário, valor e vigência.</p>
+            </article>
+            <article>
+               <h3>Avaliação geral</h3>
+               <p><code>overall</code>, <code>potential</code> e reputação.</p>
+            </article>
+            <article>
+               <h3>Habilidades</h3>
+               <p>Macroatributos e dezenas de sub-habilidades técnicas.</p>
+            </article>
+            <article>
+               <h3>Posições e mídia</h3>
+               <p>Ratings por posição e URLs de imagens e escudos.</p>
+            </article>
+         </div>
+         <p class="take">Não existe label de classificação: o RBC recupera casos por similaridade.</p>
+      </section>
+      <section class="slide" data-label="Features">
+         <div class="k">04 — ESCOLHA DOS ATRIBUTOS</div>
+         <h2>Similaridade técnica, sem misturar preço ou identidade.</h2>
+         <div class="choice-grid">
+            <article>
+               <h3>Entram na distância</h3>
+               <ul>
+                  <li><b>pace, shooting, passing</b></li>
+                  <li><b>dribbling, defending, physic</b></li>
+                  <li>São numéricos, interpretáveis e cobrem estilos ofensivos e defensivos.</li>
+                  <li>Resumem sub-habilidades sem criar dezenas de dimensões redundantes.</li>
+               </ul>
+            </article>
+            <article>
+               <h3>Não entram na distância</h3>
+               <ul>
+                  <li><b>Valor:</b> filtro rígido de orçamento.</li>
+                  <li><b>Nome, clube e nacionalidade:</b> identificadores/categorias.</li>
+                  <li><b>Overall e potential:</b> agregariam informação já representada.</li>
+                  <li><b>Idade, altura e posição:</b> mudariam o foco técnico.</li>
+               </ul>
             </article>
          </div>
       </section>
       <section class="slide" data-label="Caso">
-         <div class="k">02 — REPRESENTAÇÃO</div>
-         <h2>Cada jogador é um caso legível.</h2>
+         <div class="k">05 — REPRESENTAÇÃO</div>
+         <h2>Um caso conecta problema, solução e validação.</h2>
          <div class="case">
             <article><span>PROBLEMA</span>
                <h3>Perfil + orçamento</h3>
                <ul>
                   <li>6 atributos técnicos</li>
                   <li>teto de investimento</li>
-                  <li>contexto da consulta</li>
+                  <li>consulta atual</li>
                </ul>
             </article><strong>+</strong>
             <article class="blue"><span>SOLUÇÃO</span>
                <h3>Jogadores recuperados</h3>
                <ul>
-                  <li>valor e similaridade</li>
-                  <li>ficha e deltas</li>
-                  <li>avaliação humana</li>
+                  <li>similaridade e valor</li>
+                  <li>ficha e diferenças</li>
+                  <li>veredito do especialista</li>
                </ul>
             </article><strong>=</strong>
             <div class="round">CASO<br>RBC</div>
          </div>
       </section>
       <section class="slide blue-slide" data-label="4 Rs">
-         <div class="k">03 — CICLO</div>
+         <div class="k">06 — CICLO</div>
          <h2>Os quatro Rs aparecem no fluxo e no código.</h2>
          <div class="cycle">
             <article><span>01</span>
@@ -781,45 +1011,73 @@
             </article>
          </div>
       </section>
-      <section class="slide" data-label="Similaridade">
-         <div class="k">04 — RECUPERAÇÃO</div>
+      <section class="slide" data-label="Recuperação">
+         <div class="k">07 — RECUPERAÇÃO</div>
          <h2>Primeiro viabilidade. Depois, proximidade.</h2>
          <div class="pipe">
             <div><b>17.041</b><span>casos válidos</span></div><i>→</i>
-            <div class="blue"><b>€</b><span>filtro de orçamento</span></div><i>→</i>
-            <div><b>KNN</b><span>vizinhos viáveis</span></div>
+            <div class="blue"><b>€</b><span>valor ≤ orçamento</span></div><i>→</i>
+            <div><b>KNN</b><span>5 vizinhos viáveis</span></div>
          </div>
          <div class="formula">
+            <article><span>FILTRO</span>
+               <h3>Restrição financeira</h3>
+               <p>Preço não distorce a semelhança técnica.</p>
+            </article>
             <article><span>NORMALIZAÇÃO</span>
                <h3>MinMaxScaler → [0, 1]</h3>
-               <p>Equilibra a escala dos atributos.</p>
+               <p>Os seis eixos recebem o mesmo coeficiente.</p>
             </article>
-            <article><span>DISTÂNCIA</span>
-               <h3>Euclidiana</h3>
-               <p>Compara seis dimensões técnicas.</p>
-            </article>
-            <article><span>CONVERSÃO</span>
-               <h3>sim = 1 / (1 + d)</h3>
-               <p>Distância zero equivale a 100%.</p>
+            <article><span>BUSCA</span>
+               <h3>KNN com Euclidiana</h3>
+               <p>Menor distância significa maior proximidade.</p>
             </article>
          </div>
       </section>
-      <section class="slide data" data-label="Dados">
-         <div class="k">05 — BASE DE CASOS</div>
-         <h2>Oito temporadas. Um critério coerente.</h2>
-         <div class="stats">
-            <article><b>8</b><span>temporadas<br>FIFA 15 a 22</span></article>
-            <article><b>19.239</b><span>registros brutos<br>em 2022</span></article>
-            <article><b>17.041</b><span>jogadores de linha<br>após limpeza</span></article>
-         </div>
-         <div class="note"><b>2.198 removidos</b>
-            <p>Goleiros e registros incompletos não possuem os seis macroatributos comparáveis. É uma decisão de
-               modelagem.</p>
+      <section class="slide" data-label="Equações">
+         <div class="k">08 — MÉTRICA FINAL</div>
+         <h2>Seis diferenças normalizadas formam uma única similaridade.</h2>
+         <div class="equations">
+            <article><span>1. NORMALIZAÇÃO</span>
+               <div class="eq">x′ = (x − min) / (max − min)</div>
+               <p>Cada atributo é projetado na escala de 0 a 1.</p>
+            </article>
+            <article><span>2. DISTÂNCIA EUCLIDIANA</span>
+               <div class="eq">d(q,c) = √ Σ<sub>j=1..6</sub> (q′<sub>j</sub> − c′<sub>j</sub>)²</div>
+               <p>Os seis atributos numéricos têm peso igual.</p>
+            </article>
+            <article><span>3. CONVERSÃO</span>
+               <div class="eq">S<sub>técnica</sub> = 1 / (1 + d)</div>
+               <p>Um caso idêntico tem 100%; a similaridade cai com a distância.</p>
+            </article>
+            <article><span>TIPOS NÃO NUMÉRICOS</span>
+               <div class="eq">não entram em d</div>
+               <p>Categorias são descritivas; o valor é tratado antes como restrição.</p>
+            </article>
          </div>
       </section>
-      <section class="slide" data-label="Demonstração">
-         <div class="k">06 — DEMONSTRAÇÃO</div>
-         <h2>Com € 2 mi, a restrição fica visível.</h2>
+      <section class="slide dark" data-label="Memória">
+         <div class="k">09 — REVISÃO E RETENÇÃO</div>
+         <h2>O feedback altera o ranking de consultas semelhantes.</h2>
+         <div class="learn">
+            <article><span>SIMILARIDADE ENTRE PROBLEMAS</span>
+               <h3>S<sub>problemas</sub> ≥ 0,80</h3>
+               <p>Somente experiências suficientemente próximas influenciam a consulta.</p>
+            </article>
+            <article><span>AJUSTE DA MEMÓRIA</span>
+               <h3>± 0,15 × relevância</h3>
+               <p>Aprovação inclui a nota/10; rejeição penaliza a lista que falhou.</p>
+            </article>
+            <article><span>RANKING FINAL</span>
+               <h3>clip(S<sub>técnica</sub> + A<sub>memória</sub>)</h3>
+               <p>O resultado permanece entre 0 e 1 e é auditável no JSON.</p>
+            </article>
+         </div>
+         <p class="take">Aprendizado incremental: não há retreinamento do modelo.</p>
+      </section>
+      <section class="slide" data-label="Resultado">
+         <div class="k">10 — RESULTADO VALIDADO</div>
+         <h2>Com € 2 mi, a restrição muda as alternativas.</h2>
          <div class="demo">
             <aside><span>PERFIL-ALVO</span>
                <p>95 vel • 90 chu • 85 pas<br>93 dri • 35 def • 75 fis</p>
@@ -835,42 +1093,20 @@
             </div>
          </div>
       </section>
-      <section class="slide dark" data-label="Aprendizado">
-         <div class="k">07 — HUMANO NO CICLO</div>
-         <h2>Feedback vira memória — e memória muda o ranking.</h2>
-         <div class="learn">
-            <article><span>REVISÃO</span>
-               <h3>O olheiro julga</h3>
-               <p>Escolhe um candidato ou rejeita a lista, registrando nota e justificativa.</p>
-            </article>
-            <article><span>RETENÇÃO</span>
-               <h3>O caso é persistido</h3>
-               <p>Sucesso e falha são armazenados em JSON entre execuções.</p>
-            </article>
-            <article><span>NOVA BUSCA</span>
-               <h3>O ranking aprende</h3>
-               <p>Aprovações reforçam; rejeições penalizam casos semelhantes.</p>
-            </article>
-         </div>
-         <p class="take">Aprendizado incremental, imediato e explicável.</p>
-      </section>
-      <section class="slide final" data-label="Equipe">
-         <div class="k">TRABALHO ACADÊMICO</div>
-         <h2>O sistema recomenda,<br>explica e aprende.</h2>
-         <div class="credits">
-            <div><span>DISCIPLINA</span>
-               <h3>Inteligência Artificial</h3><span>PROFESSOR</span>
-               <h3>Vinícius Almeida dos Santos</h3>
-            </div>
-            <div><span>INTEGRANTES</span>
-               <ul>
-                  <li>Alexandre Luft Duarte</li>
-                  <li>Alexandre Gustavo Weiss</li>
-                  <li>Ivan Lopes Nerilo</li>
-                  <li>Douglas Gabriel Sierota</li>
-                  <li>José Augusto Henn</li>
-                  <li>Josué Henrique Moreira Borges</li>
-               </ul>
+      <section class="slide dark" data-label="Ao vivo">
+         <div class="k">11 — DEMONSTRAÇÃO AO VIVO</div>
+         <h2>Agora vamos validar o ciclo completo na interface.</h2>
+         <div class="live">
+            <ol class="live-steps">
+               <li>Executar a busca com o perfil de € 2 milhões</li>
+               <li>Conferir ranking, diferenças e economia</li>
+               <li>Aprovar ou rejeitar uma recomendação</li>
+               <li>Repetir a busca e observar a memória</li>
+            </ol>
+            <div class="live-callout">
+               <h3>O que será validado</h3>
+               <p>Os candidatos respeitam o orçamento, são tecnicamente próximos, recebem explicações por atributo e o
+                  feedback modifica buscas futuras.</p>
             </div>
          </div>
       </section>
